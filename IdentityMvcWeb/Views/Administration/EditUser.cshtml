@@ -1,0 +1,52 @@
+﻿@using IdentityMvcWeb.IdentityConfig
+@using Microsoft.AspNet.Identity.EntityFramework
+@model IdentityMvcWeb.Models.ApplicationUser
+
+@{
+    ViewBag.Title = "Edit user";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Edit @Model.Email </h2>
+
+<table class="table table-responsive">
+    <thead>
+        <tr>
+            <th>Role</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Roles)
+        {
+            var roleName = ((IEnumerable<IdentityRole>)ViewBag.RolesList).Where(r => r.Id == item.RoleId).Select(r => r.Name).FirstOrDefault();
+            if (roleName != null)
+            {
+                <tr>
+                    <td>
+                        @roleName
+                    </td>
+                    <td>
+                        @if (User.IsInRole(UserRoles.DeleteUserFromRole))
+                        {
+                            using (Html.BeginForm("DeleteUserFromRole", "Administration", new { id = Model.Id, role = roleName }, FormMethod.Post, new { @class = "form-inline", role = "form" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="submit" value="Remove" class="btn-link" />
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+@if (User.IsInRole(UserRoles.AddUserToRole))
+{
+    using (Html.BeginForm("AddUserToRole", "Administration", new { id = Model.Id }, FormMethod.Post, new { @class = "form-inline", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.DropDownList("role", new SelectList(ViewBag.RolesList, nameof(IdentityRole.Name), nameof(IdentityRole.Name)))
+        <input type="submit" value="Add" class="btn-link" />
+    }
+}

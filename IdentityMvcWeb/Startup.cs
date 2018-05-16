@@ -1,4 +1,5 @@
-﻿using Microsoft.Owin;
+﻿using IdentityMvcWeb.IdentityConfig;
+using Microsoft.Owin;
 using Owin;
 
 [assembly: OwinStartupAttribute(typeof(IdentityMvcWeb.Startup))]
@@ -9,6 +10,7 @@ namespace IdentityMvcWeb
         public void Configuration(IAppBuilder app)
         {
             ConfigureAuth(app);
+            RbacConfig.CreateRolesandUsers(app);
         }
     }
 }

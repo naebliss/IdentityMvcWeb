@@ -1,0 +1,47 @@
+﻿@using IdentityMvcWeb.IdentityConfig
+@using PagedList.Mvc
+@model PagedList.IPagedList<IdentityMvcWeb.Models.ApplicationUser>
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@{
+    ViewBag.Title = "Users";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Users</h2>
+
+@if (ViewBag.StatusMessage != null)
+{
+    <span style="color:red">@ViewBag.StatusMessage</span>
+}
+
+<table class="table table-responsive">
+    <tr>
+        <th>Email</th>
+        <th>Locked out</th>
+        <th></th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(m => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(m => item.LockoutEndDateUtc)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "EditUser", new { id = item.Id })
+                @if (!item.UserName.Equals(User.Identity.Name, StringComparison.InvariantCultureIgnoreCase) && User.IsInRole(UserRoles.DeleteUser))
+                {
+                    using (Html.BeginForm("DeleteUser", "Administration", new { id = item.Id }, FormMethod.Post, new { @class = "form-inline", role = "form", onsubmit = $"return confirm('Are you sure you want to delete user {item.Email} ?');" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <text>|</text><input type="submit" value="Remove" class="btn-link" />
+                    }
+                }
+            </td>
+        </tr>
+    }
+</table>
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page }))
